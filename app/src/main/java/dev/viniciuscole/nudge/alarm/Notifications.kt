@@ -35,8 +35,8 @@ object Notifications {
     fun ringing(context: Context, r: Reminder): Notification {
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         val fullScreen = PendingIntent.getActivity(context, r.id.toInt(), AlarmActivity.intent(context, r.id), flags)
-        val done = PendingIntent.getService(context, 1, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_DONE), flags)
-        val snooze = PendingIntent.getService(context, 2, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_SNOOZE), flags)
+        val done = PendingIntent.getService(context, r.id.toInt() * 2, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_DONE), flags)
+        val snooze = PendingIntent.getService(context, r.id.toInt() * 2 + 1, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_SNOOZE), flags)
 
         return NotificationCompat.Builder(context, CHANNEL_ALARMS)
             .setSmallIcon(R.drawable.ic_notification)
@@ -57,8 +57,8 @@ object Notifications {
     fun gentle(context: Context, r: Reminder): Notification {
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         val open = PendingIntent.getActivity(context, r.id.toInt(), AlarmActivity.intent(context, r.id), flags)
-        val done = PendingIntent.getService(context, 1, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_DONE), flags)
-        val snooze = PendingIntent.getService(context, 2, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_SNOOZE), flags)
+        val done = PendingIntent.getService(context, r.id.toInt() * 2, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_DONE), flags)
+        val snooze = PendingIntent.getService(context, r.id.toInt() * 2 + 1, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_SNOOZE), flags)
 
         return NotificationCompat.Builder(context, CHANNEL_ALARMS)
             .setSmallIcon(R.drawable.ic_notification)
