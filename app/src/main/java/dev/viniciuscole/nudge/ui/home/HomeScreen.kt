@@ -358,7 +358,7 @@ private fun EmptyState(onAdd: () -> Unit) {
             text = stringResource(R.string.add_first_reminder),
             onClick = onAdd,
             height = 54.dp,
-            modifier = Modifier.width(220.dp),
+            modifier = Modifier.width(280.dp),
         )
     }
 }
