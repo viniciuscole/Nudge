@@ -13,6 +13,8 @@ import androidx.navigation.navArgument
 import dev.viniciuscole.nudge.NudgeApp
 import dev.viniciuscole.nudge.ui.add.AddReminderScreen
 import dev.viniciuscole.nudge.ui.add.AddReminderViewModel
+import dev.viniciuscole.nudge.ui.builder.MealBuilderScreen
+import dev.viniciuscole.nudge.ui.builder.MealBuilderViewModel
 import dev.viniciuscole.nudge.ui.home.HomeScreen
 import dev.viniciuscole.nudge.ui.home.HomeViewModel
 
@@ -44,8 +46,13 @@ fun NudgeNavHost() {
         composable(
             Routes.BUILDER,
             arguments = listOf(navArgument("reminderId") { type = NavType.LongType }),
-        ) {
-            // Task 12 replaces this with MealBuilderScreen
+        ) { entry ->
+            val reminderId = entry.arguments?.getLong("reminderId") ?: -1L
+            val vm: MealBuilderViewModel = viewModel(
+                key = "builder-$reminderId",
+                factory = viewModelFactory { initializer { MealBuilderViewModel(app, reminderId) } },
+            )
+            MealBuilderScreen(vm = vm, onBack = { nav.popBackStack() })
         }
     }
 }
