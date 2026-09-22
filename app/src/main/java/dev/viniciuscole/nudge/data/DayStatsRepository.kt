@@ -25,9 +25,13 @@ class DayStatsRepository(context: Context) {
         write(if (r.isWater) cur.copy(waterDone = cur.waterDone + 1) else cur.copy(mealsDone = cur.mealsDone + 1))
     }
 
-    private fun load(): DayStats {
+    private fun load(): DayStats = try {
         val date = prefs.getString("date", null)?.let(LocalDate::parse) ?: LocalDate.now()
-        return DayStats(date, prefs.getInt("water", 0), prefs.getInt("meals", 0))
+        DayStats(date, prefs.getInt("water", 0), prefs.getInt("meals", 0))
+    } catch (e: Exception) {
+        // corrupt store: clear it so the next process start does not hit the same throw
+        prefs.edit().remove("date").remove("water").remove("meals").commit()
+        DayStats(LocalDate.now())
     }
 
     private fun write(s: DayStats) {

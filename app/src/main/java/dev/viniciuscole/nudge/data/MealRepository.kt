@@ -11,10 +11,23 @@ import java.time.LocalDate
 class MealRepository(context: Context) {
 
     private val prefs = context.getSharedPreferences("meals", Context.MODE_PRIVATE)
-    private val _meals = MutableStateFlow(MealJson.decode(prefs.getString(KEY, null)))
+    private val _meals = MutableStateFlow(loadOrReset())
     val meals: StateFlow<List<SavedMeal>> = _meals.asStateFlow()
 
-    fun nextId(): Long = (_meals.value.maxOfOrNull { it.id } ?: 0L) + 1
+    private fun loadOrReset(): List<SavedMeal> = try {
+        MealJson.decode(prefs.getString(KEY, null))
+    } catch (e: Exception) {
+        // corrupt store: clear it so the next process start does not hit the same throw
+        prefs.edit().remove(KEY).commit()
+        emptyList()
+    }
+
+    fun nextId(): Long {
+        val seed = maxOf(prefs.getLong(KEY_SEQ, 0L), _meals.value.maxOfOrNull { it.id } ?: 0L)
+        val next = seed + 1
+        prefs.edit().putLong(KEY_SEQ, next).apply()
+        return next
+    }
 
     fun forReminderOn(reminderId: Long, date: LocalDate): SavedMeal? =
         _meals.value.lastOrNull { it.reminderId == reminderId && it.date == date }
@@ -31,5 +44,6 @@ class MealRepository(context: Context) {
 
     private companion object {
         const val KEY = "list"
+        const val KEY_SEQ = "seq"
     }
 }

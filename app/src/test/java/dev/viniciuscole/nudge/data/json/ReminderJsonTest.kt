@@ -2,7 +2,9 @@ package dev.viniciuscole.nudge.data.json
 
 import dev.viniciuscole.nudge.data.model.Reminder
 import dev.viniciuscole.nudge.data.model.ReminderType
+import org.json.JSONException
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -37,5 +39,28 @@ class ReminderJsonTest {
         assertEquals(6, water.startHour)
         assertEquals(23, water.endHour)
         assertEquals(45, water.intervalMin)
+    }
+
+    // decode() propagates malformed-input exceptions by design; ReminderRepository is the
+    // layer that guards against them (catches Exception, clears the corrupt store, falls
+    // back to emptyList()). These tests document that contract.
+
+    @Test
+    fun truncatedJsonThrows() {
+        assertThrows(JSONException::class.java) { ReminderJson.decode("""[{"id":1,""") }
+    }
+
+    @Test
+    fun missingRequiredIdFieldThrows() {
+        assertThrows(JSONException::class.java) { ReminderJson.decode("""[{"type":"MEAL","label":"x"}]""") }
+    }
+
+    @Test
+    fun unrecognisedEnumValueThrows() {
+        // ReminderType.valueOf throws IllegalArgumentException, not JSONException -- a catch
+        // scoped to JSONException in the repository would miss this path.
+        assertThrows(IllegalArgumentException::class.java) {
+            ReminderJson.decode("""[{"id":1,"type":"SNACK","label":"x"}]""")
+        }
     }
 }

@@ -10,12 +10,25 @@ import kotlinx.coroutines.flow.asStateFlow
 class ReminderRepository(context: Context) {
 
     private val prefs = context.getSharedPreferences("reminders", Context.MODE_PRIVATE)
-    private val _reminders = MutableStateFlow(ReminderJson.decode(prefs.getString(KEY, null)))
+    private val _reminders = MutableStateFlow(loadOrReset())
     val reminders: StateFlow<List<Reminder>> = _reminders.asStateFlow()
+
+    private fun loadOrReset(): List<Reminder> = try {
+        ReminderJson.decode(prefs.getString(KEY, null))
+    } catch (e: Exception) {
+        // corrupt store: clear it so the next process start does not hit the same throw
+        prefs.edit().remove(KEY).commit()
+        emptyList()
+    }
 
     fun get(id: Long): Reminder? = _reminders.value.firstOrNull { it.id == id }
 
-    fun nextId(): Long = (_reminders.value.maxOfOrNull { it.id } ?: 0L) + 1
+    fun nextId(): Long {
+        val seed = maxOf(prefs.getLong(KEY_SEQ, 0L), _reminders.value.maxOfOrNull { it.id } ?: 0L)
+        val next = seed + 1
+        prefs.edit().putLong(KEY_SEQ, next).commit()
+        return next
+    }
 
     fun upsert(r: Reminder) {
         val cur = _reminders.value
@@ -35,5 +48,6 @@ class ReminderRepository(context: Context) {
 
     private companion object {
         const val KEY = "list"
+        const val KEY_SEQ = "seq"
     }
 }
