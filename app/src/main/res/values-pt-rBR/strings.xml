@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nudge</string>
+
+    <string name="channel_alarms">Alarmes</string>
+    <string name="channel_alarms_desc">Lembretes de refeição e água</string>
+    <string name="ring_sub_meal">Tocando · vibrando</string>
+    <string name="ring_sub_water">Copo %1$d de %2$d · tocando</string>
+    <string name="action_done">Concluído</string>
+    <string name="action_snooze">Adiar 5 min</string>
+    <string name="reminder">Lembrete</string>
+
+    <string name="home_title">Seu dia</string>
+    <string name="water">Água</string>
+    <string name="meals">Refeições</string>
+    <string name="stat_glasses">/ %1$d copos</string>
+    <string name="stat_on_time">/ %1$d no horário</string>
+    <string name="reminders">Lembretes</string>
+    <string name="schedule_daily">%1$s todo dia</string>
+    <string name="schedule_water">%1$s–%2$s, a cada %3$s</string>
+    <string name="schedule_off_suffix">· desligado</string>
+    <string name="empty_title">Nenhum lembrete ainda</string>
+    <string name="empty_body">Adicione seus horários de refeição e uma janela de hidratação. O Nudge toca até você dispensar.</string>
+    <string name="add_first_reminder">Adicionar primeiro lembrete</string>
+    <string name="add_reminder">Adicionar lembrete</string>
+    <string name="delete">Excluir</string>
+    <string name="perm_fullscreen_title">Permitir alarmes em tela cheia</string>
+    <string name="perm_fullscreen_body">Necessário para tocar sobre a tela de bloqueio.</string>
+    <string name="perm_exact_title">Permitir alarmes exatos</string>
+    <string name="perm_exact_body">Sem isso os lembretes podem atrasar.</string>
+    <string name="perm_notifications_title">Permitir notificações</string>
+    <string name="perm_notifications_body">Os lembretes chegam como notificações de alarme.</string>
+    <string name="perm_fix">Corrigir</string>
+    <string name="interval_minutes">%1$d min</string>
+    <string name="interval_hours">%1$dh</string>
+    <string name="interval_hours_minutes">%1$dh%2$02d</string>
+
+    <string name="new_reminder">Novo lembrete</string>
+    <string name="type_meal">Refeição</string>
+    <string name="type_water">Água</string>
+    <string name="label">Nome</string>
+    <string name="label_hint">ex.: Almoço</string>
+    <string name="time">Horário</string>
+    <string name="start">Início</string>
+    <string name="end">Fim</string>
+    <string name="every">A cada</string>
+    <string name="custom_interval">Personalizado</string>
+    <string name="custom_interval_hint">Minutos</string>
+    <string name="insistent_title">Alarme insistente</string>
+    <string name="insistent_body">Toca e vibra até ser dispensado</string>
+    <string name="save_reminder">Salvar lembrete</string>
+    <string name="default_meal_label">Refeição</string>
+    <string name="default_water_label">Beber água</string>
+    <string name="back">Voltar</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancelar</string>
+
+    <string name="builder_subtitle">%1$s · refeição</string>
+    <string name="search_hint">Buscar ingrediente…</string>
+    <string name="no_match">Nada encontrado.</string>
+    <string name="per_100">%1$d kcal / 100 %2$s</string>
+    <plurals name="ingredient_count">
+        <item quantity="one">%1$d ingrediente</item>
+        <item quantity="other">%1$d ingredientes</item>
+    </plurals>
+    <string name="empty_ingredients_title">Adicione o primeiro ingrediente</string>
+    <string name="empty_ingredients_body">Busque acima e toque para adicionar. Calorias e macros somam conforme você monta.</string>
+    <string name="meal_total">Total da refeição</string>
+    <string name="kcal">kcal</string>
+    <string name="kcal_caps">KCAL</string>
+    <string name="goal_note">≈ %1$d%% de um dia de 1.800 kcal</string>
+    <string name="protein_g">Proteína %1$d g</string>
+    <string name="carbs_g">Carbo %1$d g</string>
+    <string name="fat_g">Gordura %1$d g</string>
+    <string name="save_meal">Salvar refeição</string>
+    <string name="meal_saved">Refeição salva</string>
+    <string name="clear">Limpar</string>
+    <string name="remove">Remover</string>
+    <string name="add">Adicionar</string>
+</resources>
