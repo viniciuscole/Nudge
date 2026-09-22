@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import dev.viniciuscole.nudge.alarm.AlarmScheduler
 import dev.viniciuscole.nudge.alarm.Notifications
+import dev.viniciuscole.nudge.alarm.RingingState
 import dev.viniciuscole.nudge.data.DayStatsRepository
 import dev.viniciuscole.nudge.data.MealRepository
 import dev.viniciuscole.nudge.data.ReminderRepository
@@ -21,6 +22,9 @@ class NudgeApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Notifications.createChannels(this)
+        if (RingingState.current.value == null) {
+            scheduler.rescheduleAll(reminders.reminders.value)
+        }
     }
 
     companion object {
