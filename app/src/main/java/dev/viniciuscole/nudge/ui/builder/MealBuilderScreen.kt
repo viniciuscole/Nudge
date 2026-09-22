@@ -1,5 +1,6 @@
 package dev.viniciuscole.nudge.ui.builder
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -64,13 +65,23 @@ fun MealBuilderScreen(vm: MealBuilderViewModel, onBack: () -> Unit) {
     val s by vm.state.collectAsStateWithLifecycle()
     val reminder = s.reminder
 
+    val onBackOrSave: () -> Unit = {
+        if (!s.saved && s.ingredients.isNotEmpty()) vm.save()
+        onBack()
+    }
+
+    BackHandler(enabled = !s.saved && s.ingredients.isNotEmpty()) {
+        vm.save()
+        onBack()
+    }
+
     Column(Modifier.fillMaxSize().background(c.bg).statusBarsPadding()) {
         Row(
             Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            CircleIconButton(R.drawable.ic_back, onClick = onBack, contentDescription = stringResource(R.string.back))
+            CircleIconButton(R.drawable.ic_back, onClick = onBackOrSave, contentDescription = stringResource(R.string.back))
             Column {
                 Text(reminder?.label ?: "", style = manrope(19.sp, FontWeight.Bold), color = c.ink)
                 if (reminder != null) {
