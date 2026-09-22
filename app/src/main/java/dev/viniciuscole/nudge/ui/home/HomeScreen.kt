@@ -64,7 +64,6 @@ import dev.viniciuscole.nudge.ui.components.NudgeSwitch
 import dev.viniciuscole.nudge.ui.components.PillButton
 import dev.viniciuscole.nudge.ui.components.SectionLabel
 import dev.viniciuscole.nudge.ui.format.ReminderFormat
-import dev.viniciuscole.nudge.ui.theme.CapsLabel
 import dev.viniciuscole.nudge.ui.theme.NudgeTheme
 import dev.viniciuscole.nudge.ui.theme.manrope
 import java.time.LocalDate
@@ -93,8 +92,14 @@ fun HomeScreen(
         onPauseOrDispose { }
     }
 
+    val ringingId by vm.ringing.collectAsStateWithLifecycle()
+
     Box(Modifier.fillMaxSize().background(c.bg)) {
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
+            val ringingReminder = ringingId?.let { id -> state.reminders.firstOrNull { it.id == id } }
+            if (ringingReminder != null) {
+                RingingBanner(ringingReminder, onStop = vm::stopRinging)
+            }
             Header(onSettings = { ctx.startActivity(Permissions.notificationSettingsIntent(ctx)) })
 
             if (state.reminders.isEmpty()) {
@@ -161,6 +166,27 @@ private fun Header(onSettings: () -> Unit) {
         ) {
             Box(Modifier.size(16.dp).clip(CircleShape).border(2.dp, c.faint, CircleShape))
         }
+    }
+}
+
+@Composable
+private fun RingingBanner(r: Reminder, onStop: () -> Unit) {
+    val c = NudgeTheme.colors
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(20.dp)).background(c.coralContainer).padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.alarm_ringing_now), style = manrope(15.sp, FontWeight.Bold), color = c.coralOnContainer)
+            Text(r.label, style = manrope(13.sp, FontWeight.Medium), color = c.coralMuted, modifier = Modifier.padding(top = 2.dp))
+        }
+        Text(
+            stringResource(R.string.stop),
+            style = manrope(14.sp, FontWeight.Bold),
+            color = Color.White,
+            modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(c.coral).clickable(onClick = onStop).padding(horizontal = 14.dp, vertical = 8.dp),
+        )
     }
 }
 

@@ -40,6 +40,7 @@ class AlarmRingingService : Service() {
                     startForeground(Notifications.RINGING_ID, notification)
                 }
                 RingingState.set(reminderId)
+                startActivity(AlarmActivity.intent(this, reminderId))
                 if (reminder.insistent) ringer.start()
                 handler.removeCallbacks(autoSnooze)
                 handler.postDelayed(autoSnooze, AUTO_SNOOZE_MS)

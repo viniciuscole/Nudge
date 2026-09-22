@@ -6,6 +6,7 @@ import dev.viniciuscole.nudge.NudgeApp
 import dev.viniciuscole.nudge.alarm.AlarmActivity
 import dev.viniciuscole.nudge.alarm.AlarmRingingService
 import dev.viniciuscole.nudge.alarm.NextFire
+import dev.viniciuscole.nudge.alarm.RingingState
 import dev.viniciuscole.nudge.data.model.Reminder
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +35,13 @@ class HomeViewModel(private val app: NudgeApp) : ViewModel() {
             mealsTotal = enabled.count { it.isMeal },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState(app.reminders.reminders.value))
+
+    val ringing: StateFlow<Long?> = RingingState.current
+
+    fun stopRinging() {
+        val id = RingingState.current.value ?: return
+        app.startService(AlarmRingingService.intent(app, id, AlarmRingingService.ACTION_DONE))
+    }
 
     fun toggle(id: Long, enabled: Boolean) {
         app.reminders.setEnabled(id, enabled)
