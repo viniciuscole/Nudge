@@ -1,0 +1,48 @@
+package dev.viniciuscole.nudge.ui
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import dev.viniciuscole.nudge.NudgeApp
+import dev.viniciuscole.nudge.ui.home.HomeScreen
+import dev.viniciuscole.nudge.ui.home.HomeViewModel
+
+object Routes {
+    const val HOME = "home"
+    const val ADD = "add"
+    const val BUILDER = "builder/{reminderId}"
+    fun builder(id: Long) = "builder/$id"
+}
+
+@Composable
+fun NudgeNavHost() {
+    val nav = rememberNavController()
+    val app = NudgeApp.from(LocalContext.current)
+
+    NavHost(nav, startDestination = Routes.HOME) {
+        composable(Routes.HOME) {
+            val vm: HomeViewModel = viewModel(factory = viewModelFactory { initializer { HomeViewModel(app) } })
+            HomeScreen(
+                vm = vm,
+                onAdd = { nav.navigate(Routes.ADD) },
+                onOpenBuilder = { id -> nav.navigate(Routes.builder(id)) },
+            )
+        }
+        composable(Routes.ADD) {
+            // Task 9 replaces this with AddReminderScreen
+        }
+        composable(
+            Routes.BUILDER,
+            arguments = listOf(navArgument("reminderId") { type = NavType.LongType }),
+        ) {
+            // Task 12 replaces this with MealBuilderScreen
+        }
+    }
+}
