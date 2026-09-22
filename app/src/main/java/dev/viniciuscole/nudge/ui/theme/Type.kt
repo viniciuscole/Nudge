@@ -1,20 +1,29 @@
 package dev.viniciuscole.nudge.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import dev.viniciuscole.nudge.R
 
+@OptIn(ExperimentalTextApi::class)
+private fun manropeFont(weight: FontWeight) = Font(
+    R.font.manrope,
+    weight,
+    variationSettings = FontVariation.Settings(FontVariation.weight(weight.weight)),
+)
+
 val Manrope = FontFamily(
-    Font(R.font.manrope, FontWeight.Normal),
-    Font(R.font.manrope, FontWeight.Medium),
-    Font(R.font.manrope, FontWeight.SemiBold),
-    Font(R.font.manrope, FontWeight.Bold),
-    Font(R.font.manrope, FontWeight.ExtraBold),
+    manropeFont(FontWeight.Normal),
+    manropeFont(FontWeight.Medium),
+    manropeFont(FontWeight.SemiBold),
+    manropeFont(FontWeight.Bold),
+    manropeFont(FontWeight.ExtraBold),
 )
 
 fun manrope(
