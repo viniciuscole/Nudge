@@ -20,7 +20,17 @@ class UsdaClientTest {
              {"nutrientNumber":"957","nutrientName":"Energy (Atwater General Factors)","unitName":"KCAL","value":884.0},
              {"nutrientNumber":"204","nutrientName":"Total lipid (fat)","unitName":"G","value":100.0}
            ]},
-          {"fdcId":3,"description":"Water","foodNutrients":[]}
+          {"fdcId":3,"description":"Water","foodNutrients":[]},
+          {"fdcId":4,"description":"Cheddar cheese",
+           "foodNutrients":[
+             {"nutrientNumber":"957","nutrientName":"Energy (Atwater General Factors)","unitName":"KCAL","value":999.0},
+             {"nutrientNumber":"208","nutrientName":"Energy","unitName":"KCAL","value":403.0},
+             {"nutrientNumber":"203","nutrientName":"Protein","unitName":"G","value":23.0}
+           ]},
+          {"fdcId":5,"description":"Diet soda",
+           "foodNutrients":[
+             {"nutrientNumber":"958","nutrientName":"Energy (Atwater Specific Factors)","unitName":"KCAL","value":0.0}
+           ]}
         ]}
     """.trimIndent()
 
@@ -40,7 +50,7 @@ class UsdaClientTest {
     @Test
     fun fallsBackToAtwaterEnergyAndDropsFoodsWithoutEnergy() {
         val items = UsdaClient.parse(sample)
-        assertEquals(2, items.size)
+        assertEquals(3, items.size)
         assertEquals(884.0, items.first { it.name == "Olive oil" }.kcal100, 0.001)
         assertTrue(items.none { it.name == "Water" })
     }
@@ -49,5 +59,16 @@ class UsdaClientTest {
     fun malformedJsonYieldsEmptyList() {
         assertTrue(UsdaClient.parse("not json").isEmpty())
         assertTrue(UsdaClient.parse("{}").isEmpty())
+    }
+
+    @Test
+    fun directEnergyWinsOverAtwaterWhenBothPresent() {
+        val cheddar = UsdaClient.parse(sample).first { it.name == "Cheddar cheese" }
+        assertEquals(403.0, cheddar.kcal100, 0.001)
+    }
+
+    @Test
+    fun zeroEnergyFoodsAreDropped() {
+        assertTrue(UsdaClient.parse(sample).none { it.name == "Diet soda" })
     }
 }
