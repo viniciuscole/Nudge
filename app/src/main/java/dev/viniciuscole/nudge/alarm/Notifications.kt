@@ -14,6 +14,7 @@ object Notifications {
 
     const val CHANNEL_ALARMS = "alarms"
     const val RINGING_ID = 1001
+    const val GENTLE_ID = 1002
 
     fun createChannels(context: Context) {
         val nm = context.getSystemService(NotificationManager::class.java)
@@ -48,6 +49,26 @@ object Notifications {
             .setAutoCancel(false)
             .setContentIntent(fullScreen)
             .setFullScreenIntent(fullScreen, true)
+            .addAction(0, context.getString(R.string.action_done), done)
+            .addAction(0, context.getString(R.string.action_snooze), snooze)
+            .build()
+    }
+
+    fun gentle(context: Context, r: Reminder): Notification {
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val open = PendingIntent.getActivity(context, r.id.toInt(), AlarmActivity.intent(context, r.id), flags)
+        val done = PendingIntent.getService(context, 1, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_DONE), flags)
+        val snooze = PendingIntent.getService(context, 2, AlarmRingingService.intent(context, r.id, AlarmRingingService.ACTION_SNOOZE), flags)
+
+        return NotificationCompat.Builder(context, CHANNEL_ALARMS)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(r.label)
+            .setContentText(context.getString(R.string.ring_sub_gentle))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setAutoCancel(true)
+            .setContentIntent(open)
             .addAction(0, context.getString(R.string.action_done), done)
             .addAction(0, context.getString(R.string.action_snooze), snooze)
             .build()

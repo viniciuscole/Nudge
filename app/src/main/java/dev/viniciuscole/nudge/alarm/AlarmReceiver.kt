@@ -1,9 +1,15 @@
 package dev.viniciuscole.nudge.alarm
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import dev.viniciuscole.nudge.NudgeApp
+import dev.viniciuscole.nudge.data.model.Reminder
 
 class AlarmReceiver : BroadcastReceiver() {
 
@@ -15,7 +21,20 @@ class AlarmReceiver : BroadcastReceiver() {
         val reminder = app.reminders.get(id) ?: return
         if (!reminder.enabled) return
         app.scheduler.schedule(reminder)
-        AlarmRingingService.start(context, id)
+        if (reminder.insistent) {
+            AlarmRingingService.start(context, id)
+        } else {
+            postGentleNotification(context, reminder)
+        }
+    }
+
+    private fun postGentleNotification(context: Context, reminder: Reminder) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        NotificationManagerCompat.from(context).notify(Notifications.GENTLE_ID, Notifications.gentle(context, reminder))
     }
 
     companion object {
