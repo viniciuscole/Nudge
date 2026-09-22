@@ -10,6 +10,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -74,47 +76,58 @@ fun RingingScreen(
             .padding(horizontal = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(56.dp))
-        Text(
-            stringResource(R.string.reminder).uppercase(),
-            style = manrope(13.sp, FontWeight.SemiBold, letterSpacing = 1.8.sp),
-            color = Color.White.copy(alpha = .7f),
-        )
-        Text(
-            time,
-            style = manrope(64.sp, FontWeight.ExtraBold, letterSpacing = (-1.9).sp),
-            color = Color.White,
-            modifier = Modifier.padding(top = 14.dp),
-        )
-
-        Spacer(Modifier.height(44.dp))
-        PulsingDisc(ringStroke, discFill) {
-            Icon(
-                painterResource(if (meal) R.drawable.ic_fork else R.drawable.ic_drop),
-                contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(64.dp),
+        // The buttons must never be squeezed: they are the only way to stop
+        // the alarm. Keeping them unweighted and the decoration weighted makes
+        // the Column measure them first, at full size, whatever the font scale.
+        Column(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(Modifier.height(56.dp))
+            Text(
+                stringResource(R.string.reminder).uppercase(),
+                style = manrope(13.sp, FontWeight.SemiBold, letterSpacing = 1.8.sp),
+                color = Color.White.copy(alpha = .7f),
             )
+            Text(
+                time,
+                style = manrope(64.sp, FontWeight.ExtraBold, letterSpacing = (-1.9).sp),
+                color = Color.White,
+                modifier = Modifier.padding(top = 14.dp),
+            )
+
+            Spacer(Modifier.height(44.dp))
+            PulsingDisc(ringStroke, discFill) {
+                Icon(
+                    painterResource(if (meal) R.drawable.ic_fork else R.drawable.ic_drop),
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(64.dp),
+                )
+            }
+
+            Text(
+                reminder.label,
+                style = manrope(34.sp, FontWeight.ExtraBold, lineHeight = 41.sp),
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 40.dp),
+            )
+            Text(
+                subtitle,
+                style = manrope(15.sp, FontWeight.Medium),
+                color = Color.White.copy(alpha = .75f),
+                modifier = Modifier.padding(top = 8.dp),
+            )
+
+            Spacer(Modifier.height(26.dp))
+            Equalizer(barColor)
+
         }
 
-        Text(
-            reminder.label,
-            style = manrope(34.sp, FontWeight.ExtraBold, lineHeight = 41.sp),
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 40.dp),
-        )
-        Text(
-            subtitle,
-            style = manrope(15.sp, FontWeight.Medium),
-            color = Color.White.copy(alpha = .75f),
-            modifier = Modifier.padding(top = 8.dp),
-        )
-
-        Spacer(Modifier.height(26.dp))
-        Equalizer(barColor)
-
-        Spacer(Modifier.weight(1f))
         Column(Modifier.fillMaxWidth().padding(bottom = 34.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             PillButton(
                 text = stringResource(R.string.action_done),
