@@ -31,7 +31,11 @@ class Ringer(private val context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             vibrator.vibrate(effect, VibrationAttributes.createForUsage(VibrationAttributes.USAGE_ALARM))
         } else {
-            vibrator.vibrate(effect)
+            val attrs = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ALARM)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+            vibrator.vibrate(effect, attrs)
         }
     }
 
@@ -59,6 +63,7 @@ class Ringer(private val context: Context) {
             )
             setDataSource(context, uri)
             isLooping = true
+            setWakeMode(context, android.os.PowerManager.PARTIAL_WAKE_LOCK)
             prepare()
             start()
         }
