@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Nudge</string>
+    <string name="channel_alarms">Alarms</string>
+    <string name="channel_alarms_desc">Meal and water reminders</string>
+    <string name="ring_sub_meal">Ringing · vibrating</string>
+    <string name="ring_sub_water">Glass %1$d of %2$d · ringing</string>
+    <string name="action_done">Done</string>
+    <string name="action_snooze">Snooze 5 min</string>
 </resources>
