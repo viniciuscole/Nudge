@@ -11,6 +11,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dev.viniciuscole.nudge.NudgeApp
+import dev.viniciuscole.nudge.ui.add.AddReminderScreen
+import dev.viniciuscole.nudge.ui.add.AddReminderViewModel
 import dev.viniciuscole.nudge.ui.home.HomeScreen
 import dev.viniciuscole.nudge.ui.home.HomeViewModel
 
@@ -36,7 +38,8 @@ fun NudgeNavHost() {
             )
         }
         composable(Routes.ADD) {
-            // Task 9 replaces this with AddReminderScreen
+            val vm: AddReminderViewModel = viewModel(factory = viewModelFactory { initializer { AddReminderViewModel(app) } })
+            AddReminderScreen(vm = vm, onBack = { nav.popBackStack() })
         }
         composable(
             Routes.BUILDER,

@@ -32,4 +32,23 @@
     <string name="interval_minutes">%1$d min</string>
     <string name="interval_hours">%1$dh</string>
     <string name="interval_hours_minutes">%1$dh%2$02d</string>
+    <string name="new_reminder">New reminder</string>
+    <string name="type_meal">Meal</string>
+    <string name="type_water">Water</string>
+    <string name="label">Label</string>
+    <string name="label_hint">e.g. Lunch</string>
+    <string name="time">Time</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
+    <string name="every">Every</string>
+    <string name="custom_interval">Custom</string>
+    <string name="custom_interval_hint">Minutes</string>
+    <string name="insistent_title">Insistent alarm</string>
+    <string name="insistent_body">Rings and vibrates until dismissed</string>
+    <string name="save_reminder">Save reminder</string>
+    <string name="default_meal_label">Meal</string>
+    <string name="default_water_label">Drink water</string>
+    <string name="back">Back</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>
