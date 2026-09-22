@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -25,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -44,7 +46,7 @@ fun NudgeSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: 
             .size(width = 52.dp, height = 32.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(track)
-            .clickable { onCheckedChange(!checked) },
+            .toggleable(value = checked, onValueChange = onCheckedChange, role = Role.Switch),
         contentAlignment = Alignment.CenterStart,
     ) {
         Box(

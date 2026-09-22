@@ -12,6 +12,7 @@ import dev.viniciuscole.nudge.data.model.SavedMeal
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
@@ -55,6 +56,7 @@ class MealBuilderViewModel(private val app: NudgeApp, private val reminderId: Lo
             .onEach { q -> _state.update { it.copy(searching = q.isNotBlank(), suggestions = if (q.isBlank()) emptyList() else it.suggestions) } }
             .mapLatest { q -> if (q.isBlank()) emptyList() else app.foodSearch.search(q) }
             .onEach { results -> _state.update { it.copy(suggestions = results, searching = false) } }
+            .catch { _state.update { s -> s.copy(searching = false, suggestions = emptyList()) } }
             .launchIn(viewModelScope)
     }
 
