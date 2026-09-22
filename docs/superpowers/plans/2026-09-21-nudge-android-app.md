@@ -1187,7 +1187,7 @@ class NextFireTest {
     @Test
     fun waterPicksNextSlotInsideWindow() {
         val now = day.atTime(10, 0)
-        assertEquals(day.atTime(10, 30), NextFire.compute(water, now))
+        assertEquals(day.atTime(11, 0), NextFire.compute(water, now))
     }
 
     @Test
