@@ -10,7 +10,7 @@ data class FoodItem(
     val source: String,
 ) {
     val initials: String
-        get() = name.replace(Regex("[^A-Za-z ]"), "").split(" ").filter { it.isNotBlank() }.take(2)
+        get() = name.replace(Regex("[^\\p{L} ]"), "").split(" ").filter { it.isNotBlank() }.take(2)
             .joinToString("") { it.first().uppercase() }
 
     companion object {
