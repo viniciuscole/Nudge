@@ -40,4 +40,9 @@ class NutritionTest {
         assertEquals(34, Nutrition.dayShare(611))
         assertEquals(0, Nutrition.dayShare(0))
     }
+
+    @Test
+    fun dayShareUsesTheGivenGoal() {
+        assertEquals(45, Nutrition.dayShare(900, 2000))
+    }
 }

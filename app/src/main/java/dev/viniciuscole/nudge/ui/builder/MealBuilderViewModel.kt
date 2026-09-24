@@ -3,6 +3,7 @@ package dev.viniciuscole.nudge.ui.builder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.viniciuscole.nudge.NudgeApp
+import dev.viniciuscole.nudge.data.KcalGoal
 import dev.viniciuscole.nudge.data.food.FoodItem
 import dev.viniciuscole.nudge.data.model.Ingredient
 import dev.viniciuscole.nudge.data.model.MealTotals
@@ -29,10 +30,11 @@ data class BuilderUiState(
     val ingredients: List<Ingredient> = emptyList(),
     val totals: MealTotals = Nutrition.totals(emptyList()),
     val saved: Boolean = false,
+    val kcalGoal: Int = KcalGoal.DEFAULT,
 ) {
     val hasQuery: Boolean get() = query.isNotBlank()
     val noResults: Boolean get() = hasQuery && !searching && suggestions.isEmpty()
-    val dayShare: Int get() = Nutrition.dayShare(totals.kcal)
+    val dayShare: Int get() = Nutrition.dayShare(totals.kcal, kcalGoal)
 }
 
 @OptIn(FlowPreview::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -57,6 +59,10 @@ class MealBuilderViewModel(private val app: NudgeApp, private val reminderId: Lo
             .mapLatest { q -> if (q.isBlank()) emptyList() else app.foodSearch.search(q) }
             .onEach { results -> _state.update { it.copy(suggestions = results, searching = false) } }
             .catch { _state.update { s -> s.copy(searching = false, suggestions = emptyList()) } }
+            .launchIn(viewModelScope)
+
+        app.settings.kcalGoal
+            .onEach { goal -> _state.update { it.copy(kcalGoal = goal) } }
             .launchIn(viewModelScope)
     }
 

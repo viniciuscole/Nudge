@@ -54,6 +54,7 @@ import dev.viniciuscole.nudge.ui.components.CircleIconButton
 import dev.viniciuscole.nudge.ui.components.CircleTextButton
 import dev.viniciuscole.nudge.ui.components.PillButton
 import dev.viniciuscole.nudge.ui.components.SectionLabel
+import dev.viniciuscole.nudge.ui.format.Numbers
 import dev.viniciuscole.nudge.ui.format.ReminderFormat
 import dev.viniciuscole.nudge.ui.theme.NudgeTheme
 import dev.viniciuscole.nudge.ui.theme.manrope
@@ -121,7 +122,7 @@ fun MealBuilderScreen(vm: MealBuilderViewModel, onBack: () -> Unit) {
         }
 
         Column(Modifier.fillMaxWidth().background(c.bg).navigationBarsPadding().imePadding().padding(start = 20.dp, end = 20.dp, bottom = 20.dp)) {
-            TotalsCard(s.totals, s.dayShare)
+            TotalsCard(s.totals, s.dayShare, s.kcalGoal)
             PillButton(
                 text = stringResource(if (s.saved) R.string.meal_saved else R.string.save_meal),
                 onClick = { vm.save() },
@@ -259,7 +260,7 @@ private fun EmptyIngredients(modifier: Modifier) {
 }
 
 @Composable
-private fun TotalsCard(t: MealTotals, dayShare: Int) {
+private fun TotalsCard(t: MealTotals, dayShare: Int, kcalGoal: Int) {
     val c = NudgeTheme.colors
     Card24(Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 16.dp)) {
@@ -271,7 +272,7 @@ private fun TotalsCard(t: MealTotals, dayShare: Int) {
                         Text(" " + stringResource(R.string.kcal), style = manrope(14.sp, FontWeight.Bold), color = c.muted, modifier = Modifier.padding(bottom = 6.dp))
                     }
                 }
-                Text(stringResource(R.string.goal_note, dayShare), style = manrope(12.5.sp, FontWeight.SemiBold), color = c.faint, textAlign = TextAlign.End, modifier = Modifier.padding(bottom = 4.dp))
+                Text(stringResource(R.string.goal_note, dayShare, Numbers.grouped(kcalGoal)), style = manrope(12.5.sp, FontWeight.SemiBold), color = c.faint, textAlign = TextAlign.End, modifier = Modifier.padding(bottom = 4.dp))
             }
             Row(Modifier.fillMaxWidth().padding(top = 14.dp).height(8.dp).clip(RoundedCornerShape(5.dp)).background(c.chip)) {
                 if (t.proteinPct > 0) Box(Modifier.weight(t.proteinPct.toFloat()).fillMaxSize().background(c.coral))
