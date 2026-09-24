@@ -3,7 +3,6 @@ package dev.viniciuscole.nudge.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.viniciuscole.nudge.NudgeApp
-import dev.viniciuscole.nudge.alarm.AlarmActivity
 import dev.viniciuscole.nudge.alarm.AlarmRingingService
 import dev.viniciuscole.nudge.alarm.NextFire
 import dev.viniciuscole.nudge.alarm.RingingState
@@ -53,8 +52,7 @@ class HomeViewModel(private val app: NudgeApp) : ViewModel() {
         app.reminders.delete(id)
     }
 
-    fun preview(id: Long) {
-        AlarmRingingService.start(app, id)
-        app.startActivity(AlarmActivity.intent(app, id))
-    }
+    fun logWater() = app.stats.addWater(1)
+
+    fun undoWater() = app.stats.addWater(-1)
 }

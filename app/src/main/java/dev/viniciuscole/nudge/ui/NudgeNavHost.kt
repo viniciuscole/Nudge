@@ -42,6 +42,8 @@ fun NudgeNavHost() {
                 vm = vm,
                 onAdd = { nav.navigate(Routes.ADD) },
                 onOpenBuilder = { id -> nav.navigate(Routes.builder(id)) },
+                onEdit = { id -> nav.navigate(Routes.edit(id)) },
+                onOpenDiet = { nav.navigate(Routes.DIET) },
             )
         }
         composable(Routes.ADD) {

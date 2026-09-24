@@ -90,4 +90,7 @@
     <string name="diet_meal_empty">Vazia — toque para montar</string>
     <string name="diet_no_meals">Nenhum lembrete de refeição ativo.</string>
     <string name="diet_macros_short">P %1$d g · C %2$d g · G %3$d g</string>
+    <string name="water_logged">Copo registrado</string>
+    <string name="undo">Desfazer</string>
+    <string name="open_diet">Abrir dieta</string>
 </resources>

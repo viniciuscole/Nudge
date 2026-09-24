@@ -3,6 +3,7 @@ package dev.viniciuscole.nudge.data
 import android.content.Context
 import dev.viniciuscole.nudge.data.model.DayStats
 import dev.viniciuscole.nudge.data.model.Reminder
+import dev.viniciuscole.nudge.data.model.withWater
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +25,8 @@ class DayStatsRepository(context: Context) {
         val cur = today()
         write(if (r.isWater) cur.copy(waterDone = cur.waterDone + 1) else cur.copy(mealsDone = cur.mealsDone + 1))
     }
+
+    fun addWater(delta: Int) = write(_stats.value.withWater(delta, LocalDate.now()))
 
     private fun load(): DayStats = try {
         val date = prefs.getString("date", null)?.let(LocalDate::parse) ?: LocalDate.now()

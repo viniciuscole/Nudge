@@ -29,6 +29,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -38,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +71,7 @@ import dev.viniciuscole.nudge.ui.components.SectionLabel
 import dev.viniciuscole.nudge.ui.format.ReminderFormat
 import dev.viniciuscole.nudge.ui.theme.NudgeTheme
 import dev.viniciuscole.nudge.ui.theme.manrope
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -75,6 +81,8 @@ fun HomeScreen(
     vm: HomeViewModel,
     onAdd: () -> Unit,
     onOpenBuilder: (Long) -> Unit,
+    onEdit: (Long) -> Unit,
+    onOpenDiet: () -> Unit,
 ) {
     val c = NudgeTheme.colors
     val ctx = LocalContext.current
@@ -94,6 +102,20 @@ fun HomeScreen(
 
     val ringingId by vm.ringing.collectAsStateWithLifecycle()
 
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val waterLogged = stringResource(R.string.water_logged)
+    val undo = stringResource(R.string.undo)
+    val logWater = {
+        vm.logWater()
+        scope.launch {
+            snackbar.currentSnackbarData?.dismiss()
+            if (snackbar.showSnackbar(waterLogged, undo, duration = SnackbarDuration.Short) == SnackbarResult.ActionPerformed) {
+                vm.undoWater()
+            }
+        }
+    }
+
     Box(Modifier.fillMaxSize().background(c.bg)) {
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
             val ringingReminder = ringingId?.let { id -> state.reminders.firstOrNull { it.id == id } }
@@ -105,7 +127,7 @@ fun HomeScreen(
             if (state.reminders.isEmpty()) {
                 EmptyState(onAdd)
             } else {
-                StatsRow(state)
+                StatsRow(state, onOpenDiet)
                 SectionLabel(
                     stringResource(R.string.reminders),
                     Modifier.padding(start = 20.dp, top = 22.dp, bottom = 8.dp),
@@ -121,8 +143,8 @@ fun HomeScreen(
                             r = r,
                             onToggle = { vm.toggle(r.id, it) },
                             onDelete = { vm.delete(r.id) },
-                            onTap = { if (r.isMeal) onOpenBuilder(r.id) else vm.preview(r.id) },
-                            onLongPress = { vm.preview(r.id) },
+                            onTap = { if (r.isMeal) onOpenBuilder(r.id) else logWater() },
+                            onLongPress = { onEdit(r.id) },
                         )
                     }
                 }
@@ -145,6 +167,11 @@ fun HomeScreen(
                 Icon(painterResource(R.drawable.ic_plus), stringResource(R.string.add_reminder), tint = Color.White, modifier = Modifier.size(28.dp))
             }
         }
+
+        SnackbarHost(
+            snackbar,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(start = 20.dp, end = 100.dp, bottom = 24.dp),
+        )
     }
 }
 
@@ -191,7 +218,7 @@ private fun RingingBanner(r: Reminder, onStop: () -> Unit) {
 }
 
 @Composable
-private fun StatsRow(state: HomeUiState) {
+private fun StatsRow(state: HomeUiState, onOpenDiet: () -> Unit) {
     val c = NudgeTheme.colors
     Row(
         Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 4.dp),
@@ -208,6 +235,7 @@ private fun StatsRow(state: HomeUiState) {
             bg = c.coralContainer, label = stringResource(R.string.meals), labelColor = c.coralDeep,
             value = state.mealsDone, valueColor = c.coralOnContainer,
             suffix = stringResource(R.string.stat_on_time, state.mealsTotal), suffixColor = c.coralMuted,
+            onClick = onOpenDiet, onClickLabel = stringResource(R.string.open_diet),
         )
     }
 }
@@ -216,9 +244,18 @@ private fun StatsRow(state: HomeUiState) {
 private fun StatCard(
     modifier: Modifier, bg: Color, label: String, labelColor: Color,
     value: Int, valueColor: Color, suffix: String, suffixColor: Color,
+    onClick: (() -> Unit)? = null, onClickLabel: String? = null,
 ) {
-    Column(modifier.clip(RoundedCornerShape(20.dp)).background(bg).padding(horizontal = 16.dp, vertical = 14.dp)) {
-        Text(label.uppercase(), style = manrope(11.5.sp, FontWeight.Medium, letterSpacing = .7.sp), color = labelColor)
+    Column(
+        modifier.clip(RoundedCornerShape(20.dp))
+            .then(if (onClick != null) Modifier.clickable(onClickLabel = onClickLabel, onClick = onClick) else Modifier)
+            .background(bg)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(label.uppercase(), style = manrope(11.5.sp, FontWeight.Medium, letterSpacing = .7.sp), color = labelColor, modifier = Modifier.weight(1f))
+            if (onClick != null) Text("›", style = manrope(16.sp, FontWeight.Bold), color = labelColor)
+        }
         Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.padding(top = 6.dp)) {
             Text("$value", style = manrope(22.sp, FontWeight.ExtraBold), color = valueColor)
             Text(" $suffix", style = manrope(13.sp, FontWeight.SemiBold), color = suffixColor, modifier = Modifier.padding(bottom = 3.dp))
