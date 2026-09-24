@@ -31,6 +31,7 @@ data class BuilderUiState(
     val totals: MealTotals = Nutrition.totals(emptyList()),
     val saved: Boolean = false,
     val kcalGoal: Int = KcalGoal.DEFAULT,
+    val countText: Map<Long, String> = emptyMap(),
 ) {
     val hasQuery: Boolean get() = query.isNotBlank()
     val noResults: Boolean get() = hasQuery && !searching && suggestions.isEmpty()
@@ -47,8 +48,8 @@ class MealBuilderViewModel(private val app: NudgeApp, private val reminderId: Lo
 
     init {
         val reminder = app.reminders.get(reminderId)
-        val existing = app.meals.forReminderOn(reminderId, LocalDate.now())
-        val ingredients = existing?.ingredients ?: emptyList()
+        val existing = app.meals.latestFor(reminderId)
+        val ingredients = existing?.ingredients?.map { it.withInferredPortion() } ?: emptyList()
         nextIngredientId = (ingredients.maxOfOrNull { it.id } ?: 0L) + 1
         _state.value = BuilderUiState(reminder = reminder, ingredients = ingredients, totals = Nutrition.totals(ingredients))
 
@@ -79,20 +80,35 @@ class MealBuilderViewModel(private val app: NudgeApp, private val reminderId: Lo
         clearQuery()
     }
 
-    fun setQty(id: Long, text: String) {
-        val v = text.filter(Char::isDigit).take(4).toIntOrNull() ?: 0
-        updateIngredients { list -> list.map { if (it.id == id) it.copy(qty = v.coerceIn(0, 2000)) else it } }
+    fun setQty(id: Long, text: String) = updateIngredients { list -> list.map { if (it.id == id) IngredientEdits.setGrams(it, text) else it } }
+
+    fun setCount(id: Long, text: String) {
+        val kept = text.filter { it.isDigit() || it == ',' || it == '.' }.take(5)
+        _state.update { s ->
+            val list = s.ingredients.map { if (it.id == id) IngredientEdits.setCount(it, kept) else it }
+            s.copy(ingredients = list, totals = Nutrition.totals(list), countText = s.countText + (id to kept), saved = false)
+        }
     }
 
-    fun plus(id: Long) = updateIngredients { list -> list.map { if (it.id == id) it.copy(qty = (it.qty + it.step).coerceAtMost(2000)) else it } }
+    fun plus(id: Long) = step(id, IngredientEdits::plus)
 
-    fun minus(id: Long) = updateIngredients { list -> list.map { if (it.id == id) it.copy(qty = (it.qty - it.step).coerceAtLeast(0)) else it } }
+    fun minus(id: Long) = step(id, IngredientEdits::minus)
 
-    fun remove(id: Long) = updateIngredients { list -> list.filter { it.id != id } }
+    private fun step(id: Long, f: (Ingredient) -> Ingredient) {
+        _state.update { s ->
+            val list = s.ingredients.map { if (it.id == id) f(it) else it }
+            s.copy(ingredients = list, totals = Nutrition.totals(list), countText = s.countText - id, saved = false)
+        }
+    }
+
+    fun remove(id: Long) = _state.update { s ->
+        val list = s.ingredients.filter { it.id != id }
+        s.copy(ingredients = list, totals = Nutrition.totals(list), countText = s.countText - id, saved = false)
+    }
 
     fun save() {
         val s = _state.value
-        val existing = app.meals.forReminderOn(reminderId, LocalDate.now())
+        val existing = app.meals.latestFor(reminderId)
         app.meals.save(
             SavedMeal(
                 id = existing?.id ?: app.meals.nextId(),

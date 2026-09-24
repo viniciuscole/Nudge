@@ -41,12 +41,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.viniciuscole.nudge.R
 import dev.viniciuscole.nudge.data.food.FoodItem
+import dev.viniciuscole.nudge.data.food.PortionMath
 import dev.viniciuscole.nudge.data.model.Ingredient
 import dev.viniciuscole.nudge.data.model.MealTotals
 import dev.viniciuscole.nudge.ui.components.Card24
@@ -116,7 +118,15 @@ fun MealBuilderScreen(vm: MealBuilderViewModel, onBack: () -> Unit) {
             ) {
                 item { SectionLabel(pluralStringResource(R.plurals.ingredient_count, s.ingredients.size, s.ingredients.size)) }
                 items(s.ingredients, key = { it.id }) { ing ->
-                    IngredientRow(ing, onQty = { vm.setQty(ing.id, it) }, onPlus = { vm.plus(ing.id) }, onMinus = { vm.minus(ing.id) }, onRemove = { vm.remove(ing.id) })
+                    IngredientRow(
+                        ing,
+                        countText = s.countText[ing.id],
+                        onQty = { vm.setQty(ing.id, it) },
+                        onCount = { vm.setCount(ing.id, it) },
+                        onPlus = { vm.plus(ing.id) },
+                        onMinus = { vm.minus(ing.id) },
+                        onRemove = { vm.remove(ing.id) },
+                    )
                 }
             }
         }
@@ -202,8 +212,18 @@ private fun SuggestionsDropdown(suggestions: List<FoodItem>, noResults: Boolean,
 }
 
 @Composable
-private fun IngredientRow(ing: Ingredient, onQty: (String) -> Unit, onPlus: () -> Unit, onMinus: () -> Unit, onRemove: () -> Unit) {
+private fun IngredientRow(
+    ing: Ingredient,
+    countText: String?,
+    onQty: (String) -> Unit,
+    onCount: (String) -> Unit,
+    onPlus: () -> Unit,
+    onMinus: () -> Unit,
+    onRemove: () -> Unit,
+) {
     val c = NudgeTheme.colors
+    val portion = ing.portion
+    val count = portion?.let { PortionMath.count(ing.qty, it) }
     Card24(Modifier.fillMaxWidth(), radius = 20.dp) {
         Row(
             Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 12.dp),
@@ -214,23 +234,32 @@ private fun IngredientRow(ing: Ingredient, onQty: (String) -> Unit, onPlus: () -
                 Text(ing.name, style = manrope(15.5.sp, FontWeight.Bold), color = c.ink, maxLines = 1)
                 Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Row(
-                        Modifier.clip(RoundedCornerShape(10.dp)).background(c.field).padding(horizontal = 8.dp, vertical = 5.dp),
+                        Modifier.weight(1f, fill = false).clip(RoundedCornerShape(10.dp)).background(c.field).padding(horizontal = 8.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         BasicTextField(
-                            value = ing.qty.toString(),
-                            onValueChange = onQty,
+                            value = if (portion != null) countText ?: PortionMath.format(count!!) else ing.qty.toString(),
+                            onValueChange = if (portion != null) onCount else onQty,
                             singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = KeyboardOptions(keyboardType = if (portion != null) KeyboardType.Decimal else KeyboardType.Number),
                             textStyle = manrope(14.sp, FontWeight.Bold).copy(color = c.ink, textAlign = TextAlign.End),
                             cursorBrush = SolidColor(c.coral),
-                            modifier = Modifier.width(38.dp),
+                            modifier = Modifier.width(if (portion != null) 44.dp else 38.dp),
                         )
-                        Text(ing.unit, style = manrope(12.5.sp, FontWeight.SemiBold), color = c.muted)
+                        Text(
+                            if (portion != null) PortionMath.noun(count!!, portion) else ing.unit,
+                            style = manrope(12.5.sp, FontWeight.SemiBold),
+                            color = c.muted,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                     CircleTextButton("−", onClick = onMinus)
                     CircleTextButton("+", onClick = onPlus)
+                }
+                if (portion != null) {
+                    Text("${ing.qty} ${ing.unit}", style = manrope(12.sp, FontWeight.Medium), color = c.faint, modifier = Modifier.padding(top = 4.dp))
                 }
             }
             Column(horizontalAlignment = Alignment.End) {

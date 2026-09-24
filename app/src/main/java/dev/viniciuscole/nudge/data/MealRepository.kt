@@ -6,7 +6,6 @@ import dev.viniciuscole.nudge.data.model.SavedMeal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.time.LocalDate
 
 class MealRepository(context: Context) {
 
@@ -31,8 +30,7 @@ class MealRepository(context: Context) {
         return next
     }
 
-    fun forReminderOn(reminderId: Long, date: LocalDate): SavedMeal? =
-        _meals.value.lastOrNull { it.reminderId == reminderId && it.date == date }
+    fun latestFor(reminderId: Long): SavedMeal? = MealSelection.latest(_meals.value, reminderId)
 
     fun save(meal: SavedMeal) {
         val cur = _meals.value
