@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -54,6 +53,7 @@ import dev.viniciuscole.nudge.data.model.MealTotals
 import dev.viniciuscole.nudge.ui.components.Card24
 import dev.viniciuscole.nudge.ui.components.CircleIconButton
 import dev.viniciuscole.nudge.ui.components.CircleTextButton
+import dev.viniciuscole.nudge.ui.components.MacroBreakdown
 import dev.viniciuscole.nudge.ui.components.PillButton
 import dev.viniciuscole.nudge.ui.components.SectionLabel
 import dev.viniciuscole.nudge.ui.format.Numbers
@@ -303,25 +303,7 @@ private fun TotalsCard(t: MealTotals, dayShare: Int, kcalGoal: Int) {
                 }
                 Text(stringResource(R.string.goal_note, dayShare, Numbers.grouped(kcalGoal)), style = manrope(12.5.sp, FontWeight.SemiBold), color = c.faint, textAlign = TextAlign.End, modifier = Modifier.padding(bottom = 4.dp))
             }
-            Row(Modifier.fillMaxWidth().padding(top = 14.dp).height(8.dp).clip(RoundedCornerShape(5.dp)).background(c.chip)) {
-                if (t.proteinPct > 0) Box(Modifier.weight(t.proteinPct.toFloat()).fillMaxSize().background(c.coral))
-                if (t.carbsPct > 0) Box(Modifier.weight(t.carbsPct.toFloat()).fillMaxSize().background(c.carbs))
-                if (t.fatPct > 0) Box(Modifier.weight(t.fatPct.toFloat()).fillMaxSize().background(c.teal))
-            }
-            Row(Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Legend(c.coral, stringResource(R.string.protein_g, t.proteinG))
-                Legend(c.carbs, stringResource(R.string.carbs_g, t.carbsG))
-                Legend(c.teal, stringResource(R.string.fat_g, t.fatG))
-            }
+            MacroBreakdown(t, Modifier.padding(top = 14.dp))
         }
-    }
-}
-
-@Composable
-private fun Legend(color: Color, text: String) {
-    val c = NudgeTheme.colors
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-        Box(Modifier.size(8.dp).clip(RoundedCornerShape(3.dp)).background(color))
-        Text(text, style = manrope(12.5.sp, FontWeight.SemiBold), color = c.body)
     }
 }

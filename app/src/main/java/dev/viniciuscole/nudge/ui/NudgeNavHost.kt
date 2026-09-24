@@ -15,6 +15,8 @@ import dev.viniciuscole.nudge.ui.add.AddReminderScreen
 import dev.viniciuscole.nudge.ui.add.AddReminderViewModel
 import dev.viniciuscole.nudge.ui.builder.MealBuilderScreen
 import dev.viniciuscole.nudge.ui.builder.MealBuilderViewModel
+import dev.viniciuscole.nudge.ui.diet.DietScreen
+import dev.viniciuscole.nudge.ui.diet.DietViewModel
 import dev.viniciuscole.nudge.ui.home.HomeScreen
 import dev.viniciuscole.nudge.ui.home.HomeViewModel
 
@@ -25,6 +27,7 @@ object Routes {
     fun edit(id: Long) = "edit/$id"
     const val BUILDER = "builder/{reminderId}"
     fun builder(id: Long) = "builder/$id"
+    const val DIET = "diet"
 }
 
 @Composable
@@ -66,6 +69,10 @@ fun NudgeNavHost() {
                 factory = viewModelFactory { initializer { MealBuilderViewModel(app, reminderId) } },
             )
             MealBuilderScreen(vm = vm, onBack = { nav.popBackStack() })
+        }
+        composable(Routes.DIET) {
+            val vm: DietViewModel = viewModel(factory = viewModelFactory { initializer { DietViewModel(app) } })
+            DietScreen(vm = vm, onBack = { nav.popBackStack() }, onOpenBuilder = { id -> nav.navigate(Routes.builder(id)) })
         }
     }
 }
