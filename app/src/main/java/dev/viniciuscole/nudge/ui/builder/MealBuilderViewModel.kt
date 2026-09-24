@@ -51,7 +51,7 @@ class MealBuilderViewModel(private val app: NudgeApp, private val reminderId: Lo
         val existing = app.meals.latestFor(reminderId)
         val ingredients = existing?.ingredients?.map { it.withInferredPortion() } ?: emptyList()
         nextIngredientId = (ingredients.maxOfOrNull { it.id } ?: 0L) + 1
-        _state.value = BuilderUiState(reminder = reminder, ingredients = ingredients, totals = Nutrition.totals(ingredients))
+        _state.value = BuilderUiState(reminder = reminder, ingredients = ingredients, totals = Nutrition.totals(ingredients), saved = existing != null)
 
         query
             .debounce(350)
