@@ -1,6 +1,9 @@
 package dev.viniciuscole.nudge.data.model
 
 import dev.viniciuscole.nudge.data.food.FoodItem
+import dev.viniciuscole.nudge.data.food.LocalFoods
+import dev.viniciuscole.nudge.data.food.Portion
+import dev.viniciuscole.nudge.data.food.PortionMath
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
@@ -13,6 +16,7 @@ data class Ingredient(
     val p100: Double,
     val c100: Double,
     val f100: Double,
+    val portion: Portion? = null,
 ) {
     val kcal: Double get() = kcal100 * qty / 100.0
     val proteinG: Double get() = p100 * qty / 100.0
@@ -20,16 +24,20 @@ data class Ingredient(
     val fatG: Double get() = f100 * qty / 100.0
     val step: Int get() = if (unit == "ml") 5 else 10
 
+    fun withInferredPortion(): Ingredient =
+        if (portion != null) this else copy(portion = LocalFoods.portionFor(name))
+
     companion object {
         fun from(food: FoodItem, id: Long): Ingredient = Ingredient(
             id = id,
             name = food.name,
             unit = food.unit,
-            qty = if (food.unit == "ml") 10 else 100,
+            qty = food.portion?.let { PortionMath.toQty(1.0, it) } ?: if (food.unit == "ml") 10 else 100,
             kcal100 = food.kcal100,
             p100 = food.p100,
             c100 = food.c100,
             f100 = food.f100,
+            portion = food.portion,
         )
     }
 }

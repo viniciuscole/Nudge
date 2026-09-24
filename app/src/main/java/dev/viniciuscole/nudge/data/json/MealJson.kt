@@ -1,5 +1,6 @@
 package dev.viniciuscole.nudge.data.json
 
+import dev.viniciuscole.nudge.data.food.Portion
 import dev.viniciuscole.nudge.data.model.Ingredient
 import dev.viniciuscole.nudge.data.model.SavedMeal
 import org.json.JSONArray
@@ -47,6 +48,9 @@ object MealJson {
         .put("p100", i.p100)
         .put("c100", i.c100)
         .put("f100", i.f100)
+        .also { o ->
+            i.portion?.let { p -> o.put("portionSingular", p.singular).put("portionPlural", p.plural).put("portionGrams", p.grams) }
+        }
 
     private fun ingredientFromJson(o: JSONObject): Ingredient = Ingredient(
         id = o.getLong("id"),
@@ -57,5 +61,13 @@ object MealJson {
         p100 = o.optDouble("p100", 0.0),
         c100 = o.optDouble("c100", 0.0),
         f100 = o.optDouble("f100", 0.0),
+        portion = portionFromJson(o),
     )
+
+    private fun portionFromJson(o: JSONObject): Portion? {
+        if (!o.has("portionSingular") || !o.has("portionPlural") || !o.has("portionGrams")) return null
+        val grams = o.optDouble("portionGrams", 0.0)
+        if (grams.isNaN() || grams <= 0.0) return null
+        return Portion(o.getString("portionSingular"), o.getString("portionPlural"), grams)
+    }
 }
