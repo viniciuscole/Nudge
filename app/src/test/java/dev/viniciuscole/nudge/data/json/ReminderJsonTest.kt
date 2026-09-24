@@ -63,4 +63,18 @@ class ReminderJsonTest {
             ReminderJson.decode("""[{"id":1,"type":"SNACK","label":"x"}]""")
         }
     }
+
+    @Test
+    fun readsTheFormatAlreadyStoredOnDevices() {
+        val stored = """[{"id":1,"type":"MEAL","label":"Almoço","enabled":true,"insistent":true,"hour":12,"minute":30,"startHour":8,"endHour":22,"intervalMin":90},""" +
+            """{"id":2,"type":"WATER","label":"Água","enabled":false,"insistent":false,"hour":12,"minute":30,"startHour":7,"endHour":21,"intervalMin":60}]"""
+        val decoded = ReminderJson.decode(stored)
+        assertEquals(
+            listOf(
+                Reminder(1, ReminderType.MEAL, "Almoço", hour = 12, minute = 30),
+                Reminder(2, ReminderType.WATER, "Água", enabled = false, insistent = false, startHour = 7, endHour = 21, intervalMin = 60),
+            ),
+            decoded,
+        )
+    }
 }

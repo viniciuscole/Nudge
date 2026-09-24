@@ -16,8 +16,10 @@ class ReminderRepository(context: Context) {
     private fun loadOrReset(): List<Reminder> = try {
         ReminderJson.decode(prefs.getString(KEY, null))
     } catch (e: Exception) {
-        // corrupt store: clear it so the next process start does not hit the same throw
-        prefs.edit().remove(KEY).commit()
+        prefs.edit()
+            .putString("${KEY}_unreadable_${System.currentTimeMillis()}", prefs.getString(KEY, null))
+            .remove(KEY)
+            .commit()
         emptyList()
     }
 

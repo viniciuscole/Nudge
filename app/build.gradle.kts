@@ -25,6 +25,15 @@ android {
         buildConfigField("String", "USDA_API_KEY", "\"${localProps.getProperty("USDA_API_KEY", "")}\"")
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("keystore/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
