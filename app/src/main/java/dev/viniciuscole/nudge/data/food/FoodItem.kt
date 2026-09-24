@@ -8,6 +8,7 @@ data class FoodItem(
     val c100: Double,
     val f100: Double,
     val source: String,
+    val portion: Portion? = null,
 ) {
     val initials: String
         get() = name.replace(Regex("[^\\p{L} ]"), "").split(" ").filter { it.isNotBlank() }.take(2)

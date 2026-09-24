@@ -47,4 +47,26 @@ class LocalFoodsTest {
             assertTrue("${it.name}: iniciais", it.initials.isNotBlank())
         }
     }
+
+    @Test
+    fun portionsAttachToCatalogItems() {
+        assertEquals(Portion("pão", "pães", 50.0), LocalFoods.ALL.first { it.name == "Pão francês" }.portion)
+        assertEquals(Portion("copo", "copos", 200.0), LocalFoods.ALL.first { it.name == "Leite integral" }.portion)
+    }
+
+    @Test
+    fun everyDefinedPortionLandsOnACatalogItem() {
+        assertEquals(31, LocalFoods.ALL.count { it.portion != null })
+    }
+
+    @Test
+    fun englishItemsHaveNoPortion() {
+        assertEquals(null, LocalFoods.ALL.first { it.name == "Egg" }.portion)
+    }
+
+    @Test
+    fun portionForLooksUpByExactName() {
+        assertEquals(45.0, LocalFoods.portionFor("Arroz branco cozido")!!.grams, 0.0)
+        assertEquals(null, LocalFoods.portionFor("Quinoa"))
+    }
 }

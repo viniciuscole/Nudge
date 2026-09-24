@@ -4,10 +4,45 @@ import java.text.Normalizer
 
 object LocalFoods {
     private fun g(name: String, kcal: Double, p: Double, c: Double, f: Double) =
-        FoodItem(name, "g", kcal, p, c, f, FoodItem.SOURCE_LOCAL)
+        FoodItem(name, "g", kcal, p, c, f, FoodItem.SOURCE_LOCAL, PORTIONS[name])
 
     private fun ml(name: String, kcal: Double, p: Double, c: Double, f: Double) =
-        FoodItem(name, "ml", kcal, p, c, f, FoodItem.SOURCE_LOCAL)
+        FoodItem(name, "ml", kcal, p, c, f, FoodItem.SOURCE_LOCAL, PORTIONS[name])
+
+    // Must stay above ALL: object properties initialise in declaration order, and ALL reads this map.
+    private val PORTIONS: Map<String, Portion> = mapOf(
+        "Pão francês" to Portion("pão", "pães", 50.0),
+        "Pão de forma integral" to Portion("fatia", "fatias", 25.0),
+        "Pão de queijo" to Portion("unidade", "unidades", 20.0),
+        "Tapioca (goma)" to Portion("colher de sopa", "colheres de sopa", 15.0),
+        "Aveia em flocos" to Portion("colher de sopa", "colheres de sopa", 15.0),
+        "Arroz branco cozido" to Portion("colher de servir", "colheres de servir", 45.0),
+        "Arroz integral cozido" to Portion("colher de servir", "colheres de servir", 45.0),
+        "Feijão carioca cozido" to Portion("concha", "conchas", 80.0),
+        "Feijão preto cozido" to Portion("concha", "conchas", 80.0),
+        "Lentilha cozida" to Portion("concha", "conchas", 80.0),
+        "Ovo cozido" to Portion("ovo", "ovos", 50.0),
+        "Ovo frito" to Portion("ovo", "ovos", 50.0),
+        "Leite integral" to Portion("copo", "copos", 200.0),
+        "Leite desnatado" to Portion("copo", "copos", 200.0),
+        "Iogurte natural" to Portion("pote", "potes", 170.0),
+        "Iogurte grego" to Portion("pote", "potes", 100.0),
+        "Queijo minas frescal" to Portion("fatia", "fatias", 30.0),
+        "Queijo mussarela" to Portion("fatia", "fatias", 15.0),
+        "Requeijão cremoso" to Portion("colher de sopa", "colheres de sopa", 30.0),
+        "Manteiga" to Portion("colher de chá", "colheres de chá", 5.0),
+        "Banana prata" to Portion("banana", "bananas", 70.0),
+        "Maçã" to Portion("maçã", "maçãs", 130.0),
+        "Laranja" to Portion("laranja", "laranjas", 150.0),
+        "Azeite de oliva" to Portion("colher de sopa", "colheres de sopa", 13.0),
+        "Óleo de soja" to Portion("colher de sopa", "colheres de sopa", 13.0),
+        "Açúcar refinado" to Portion("colher de chá", "colheres de chá", 5.0),
+        "Mel" to Portion("colher de sopa", "colheres de sopa", 20.0),
+        "Castanha-do-pará" to Portion("unidade", "unidades", 4.0),
+        "Whey protein (pó)" to Portion("scoop", "scoops", 30.0),
+        "Café coado sem açúcar" to Portion("xícara", "xícaras", 50.0),
+        "Suco de laranja natural" to Portion("copo", "copos", 200.0),
+    )
 
     val ALL: List<FoodItem> = listOf(
         g("Chicken breast", 165.0, 31.0, 0.0, 3.6),
@@ -102,4 +137,6 @@ object LocalFoods {
     // "feijao" has to find "Feijão": strip diacritics from both sides before matching.
     fun fold(s: String): String =
         Normalizer.normalize(s.trim(), Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").lowercase()
+
+    fun portionFor(name: String): Portion? = PORTIONS[name]
 }
