@@ -1,11 +1,16 @@
 package dev.viniciuscole.nudge.alarm
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import dev.viniciuscole.nudge.NudgeApp
 import dev.viniciuscole.nudge.R
 import dev.viniciuscole.nudge.data.model.Reminder
@@ -72,6 +77,15 @@ object Notifications {
             .addAction(0, context.getString(R.string.action_done), done)
             .addAction(0, context.getString(R.string.action_snooze), snooze)
             .build()
+    }
+
+    fun postGentle(context: Context, r: Reminder) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        NotificationManagerCompat.from(context).notify(GENTLE_ID, gentle(context, r))
     }
 
     fun subtitle(context: Context, r: Reminder): String {

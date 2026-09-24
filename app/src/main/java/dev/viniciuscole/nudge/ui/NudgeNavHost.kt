@@ -21,6 +21,8 @@ import dev.viniciuscole.nudge.ui.home.HomeViewModel
 object Routes {
     const val HOME = "home"
     const val ADD = "add"
+    const val EDIT = "edit/{reminderId}"
+    fun edit(id: Long) = "edit/$id"
     const val BUILDER = "builder/{reminderId}"
     fun builder(id: Long) = "builder/$id"
 }
@@ -41,6 +43,17 @@ fun NudgeNavHost() {
         }
         composable(Routes.ADD) {
             val vm: AddReminderViewModel = viewModel(factory = viewModelFactory { initializer { AddReminderViewModel(app) } })
+            AddReminderScreen(vm = vm, onBack = { nav.popBackStack() })
+        }
+        composable(
+            Routes.EDIT,
+            arguments = listOf(navArgument("reminderId") { type = NavType.LongType }),
+        ) { entry ->
+            val reminderId = entry.arguments?.getLong("reminderId") ?: -1L
+            val vm: AddReminderViewModel = viewModel(
+                key = "edit-$reminderId",
+                factory = viewModelFactory { initializer { AddReminderViewModel(app, reminderId) } },
+            )
             AddReminderScreen(vm = vm, onBack = { nav.popBackStack() })
         }
         composable(

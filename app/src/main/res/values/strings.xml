@@ -76,4 +76,7 @@
     <string name="alarm_ringing_now">Alarm ringing</string>
     <string name="stop">Stop</string>
     <string name="ring_sub_gentle">Reminder</string>
+    <string name="edit_reminder">Edit reminder</string>
+    <string name="save_changes">Save changes</string>
+    <string name="test_alarm">Test alarm</string>
 </resources>

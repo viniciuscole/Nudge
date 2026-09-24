@@ -2,6 +2,7 @@ package dev.viniciuscole.nudge.ui.add
 
 import androidx.lifecycle.ViewModel
 import dev.viniciuscole.nudge.NudgeApp
+import dev.viniciuscole.nudge.alarm.ReminderPreview
 import dev.viniciuscole.nudge.data.model.Reminder
 import dev.viniciuscole.nudge.data.model.ReminderType
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,26 +10,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-data class Draft(
-    val type: ReminderType = ReminderType.MEAL,
-    val label: String = "",
-    val hour: Int = 12,
-    val minute: Int = 30,
-    val startHour: Int = 8,
-    val endHour: Int = 22,
-    val intervalMin: Int = 90,
-    val customInterval: Boolean = false,
-    val insistent: Boolean = true,
-)
+class AddReminderViewModel(private val app: NudgeApp, editId: Long? = null) : ViewModel() {
 
-class AddReminderViewModel(private val app: NudgeApp) : ViewModel() {
+    private val editing: Reminder? = editId?.let { app.reminders.get(it) }
+    val isEdit: Boolean = editId != null
+    val missing: Boolean = editId != null && editing == null
 
-    private val _draft = MutableStateFlow(Draft())
+    private val _draft = MutableStateFlow(editing?.let(Draft::from) ?: Draft())
     val draft: StateFlow<Draft> = _draft.asStateFlow()
 
-    val presetIntervals = listOf(30, 60, 90, 120)
+    val presetIntervals = Draft.PRESET_INTERVALS
 
-    fun setType(type: ReminderType) = _draft.update { it.copy(type = type) }
+    fun setType(type: ReminderType) {
+        if (isEdit) return
+        _draft.update { it.copy(type = type) }
+    }
     fun setLabel(label: String) = _draft.update { it.copy(label = label) }
     fun setTime(hour: Int, minute: Int) = _draft.update { it.copy(hour = hour, minute = minute) }
     fun setInsistent(v: Boolean) = _draft.update { it.copy(insistent = v) }
@@ -49,22 +45,19 @@ class AddReminderViewModel(private val app: NudgeApp) : ViewModel() {
     }
 
     fun save(defaultMealLabel: String, defaultWaterLabel: String): Reminder {
-        val d = _draft.value
-        val label = d.label.trim().ifEmpty { if (d.type == ReminderType.MEAL) defaultMealLabel else defaultWaterLabel }
-        val reminder = Reminder(
-            id = app.reminders.nextId(),
-            type = d.type,
-            label = label,
-            enabled = true,
-            insistent = d.insistent,
-            hour = d.hour,
-            minute = d.minute,
-            startHour = d.startHour,
-            endHour = d.endHour,
-            intervalMin = d.intervalMin.coerceAtLeast(5),
+        val reminder = _draft.value.toReminder(
+            id = editing?.id ?: app.reminders.nextId(),
+            enabled = editing?.enabled ?: true,
+            defaultMealLabel = defaultMealLabel,
+            defaultWaterLabel = defaultWaterLabel,
         )
         app.reminders.upsert(reminder)
         app.scheduler.schedule(reminder)
         return reminder
+    }
+
+    fun testAlarm() {
+        val id = editing?.id ?: return
+        app.reminders.get(id)?.let { ReminderPreview.run(app, it) }
     }
 }

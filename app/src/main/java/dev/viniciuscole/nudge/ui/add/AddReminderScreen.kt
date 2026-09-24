@@ -26,12 +26,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
@@ -66,6 +68,8 @@ fun AddReminderScreen(vm: AddReminderViewModel, onBack: () -> Unit) {
     val defaultMeal = stringResource(R.string.default_meal_label)
     val defaultWater = stringResource(R.string.default_water_label)
 
+    LaunchedEffect(vm.missing) { if (vm.missing) onBack() }
+
     Column(Modifier.fillMaxSize().background(c.bg).statusBarsPadding()) {
         Row(
             Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp),
@@ -73,7 +77,7 @@ fun AddReminderScreen(vm: AddReminderViewModel, onBack: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             CircleIconButton(R.drawable.ic_back, onClick = onBack, contentDescription = stringResource(R.string.back))
-            Text(stringResource(R.string.new_reminder), style = manrope(19.sp, FontWeight.Bold), color = c.ink)
+            Text(stringResource(if (vm.isEdit) R.string.edit_reminder else R.string.new_reminder), style = manrope(19.sp, FontWeight.Bold), color = c.ink)
         }
 
         Column(
@@ -83,12 +87,14 @@ fun AddReminderScreen(vm: AddReminderViewModel, onBack: () -> Unit) {
                 .padding(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
-            SegmentedPill(
-                options = listOf(stringResource(R.string.type_meal), stringResource(R.string.type_water)),
-                selectedIndex = if (isMeal) 0 else 1,
-                onSelect = { vm.setType(if (it == 0) ReminderType.MEAL else ReminderType.WATER) },
-                colors = listOf(c.coral, c.teal),
-            )
+            Box(Modifier.alpha(if (vm.isEdit) 0.5f else 1f)) {
+                SegmentedPill(
+                    options = listOf(stringResource(R.string.type_meal), stringResource(R.string.type_water)),
+                    selectedIndex = if (isMeal) 0 else 1,
+                    onSelect = { vm.setType(if (it == 0) ReminderType.MEAL else ReminderType.WATER) },
+                    colors = listOf(c.coral, c.teal),
+                )
+            }
 
             Column {
                 SectionLabel(stringResource(R.string.label), Modifier.padding(bottom = 8.dp))
@@ -187,14 +193,26 @@ fun AddReminderScreen(vm: AddReminderViewModel, onBack: () -> Unit) {
         }
 
         Box(Modifier.fillMaxWidth().background(c.bg).navigationBarsPadding().imePadding().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 20.dp)) {
-            PillButton(
-                text = stringResource(R.string.save_reminder),
-                onClick = {
-                    vm.save(defaultMeal, defaultWater)
-                    onBack()
-                },
-                color = if (isMeal) c.coral else c.teal,
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                PillButton(
+                    text = stringResource(if (vm.isEdit) R.string.save_changes else R.string.save_reminder),
+                    onClick = {
+                        vm.save(defaultMeal, defaultWater)
+                        onBack()
+                    },
+                    color = if (isMeal) c.coral else c.teal,
+                )
+                if (vm.isEdit) {
+                    PillButton(
+                        text = stringResource(R.string.test_alarm),
+                        onClick = vm::testAlarm,
+                        color = if (isMeal) c.coral else c.teal,
+                        contentColor = if (isMeal) c.coral else c.teal,
+                        height = 52.dp,
+                        outlined = true,
+                    )
+                }
+            }
         }
     }
 
